@@ -23,7 +23,8 @@ body {
   }
   
   .image2 {
-    clip-path: inset(0 50% 0 0);
+    z-index: 1;
+    clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%);
   }
   
   .slider {
@@ -34,5 +35,6 @@ body {
     width: 2px;
     background-color: #000;
     cursor: col-resize;
+    z-index: 2;
   }
   
