@@ -40,7 +40,9 @@ const ImageSlider = () => {
     <div className="image-container" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
       <img src={img1} alt="town" className="image image1" />
       <img src={img2} alt="mountain" className="image image2" ref={image2Ref} />
-      <div className="slider" ref={sliderRef} onMouseDown={handleMouseDown}></div>
+      <div className="slider" ref={sliderRef} onMouseDown={handleMouseDown}>
+        <div className="slider-handle"></div>
+      </div>
     </div>
   );
 };
