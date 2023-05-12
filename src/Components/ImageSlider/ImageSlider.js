@@ -1,46 +1,72 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import './ImageSlider.css';
 import img1 from '../../imgs/img1.jpg';
 import img2 from '../../imgs/img2.jpg';
 
 const ImageSlider = () => {
-  const sliderRef = useRef(null);
-  const image2Ref = useRef(null);
-  const [isMouseDown, setIsMouseDown] = useState(false);
+    const sliderRef = useRef(null);
+    const image2Ref = useRef(null);
+    const [isMouseDown, setIsMouseDown] = useState(false);
 
-  const handleMouseDown = (e) => {
-    e.preventDefault();
-    setIsMouseDown(true);
-  };
+    const handleDown = (e) => {
+        e.preventDefault();
+        setIsMouseDown(true);
+    };
 
-  const handleMouseMove = (e) => {
-    if (!isMouseDown) return;
+    const handleMove = useCallback(
+        (e) => {
+            if (!isMouseDown) return;
 
-    e.preventDefault();
+            e.preventDefault();
 
-    const imageContainer = e.currentTarget;
-    const containerRect = imageContainer.getBoundingClientRect();
-    let position = (e.clientX - containerRect.left) / containerRect.width;
+            const imageContainer = sliderRef.current.parentElement;
+            const containerRect = imageContainer.getBoundingClientRect();
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            let position = (clientX - containerRect.left) / containerRect.width;
 
-    if (position < 0) {
-      position = 0;
-    } else if (position > 1) {
-      position = 1;
-    }
+            const maxPosition = 1 - sliderRef.current.offsetWidth / containerRect.width;
 
-    image2Ref.current.style.clipPath = `polygon(${position * 100}% 0, ${position * 100}% 100%, 100% 100%, 100% 0)`;
-    sliderRef.current.style.left = `${position * 100}%`;
-  };
+            if (position < 0) {
+                position = 0;
+            } else if (position > maxPosition) {
+                position = maxPosition;
+            }
 
-  const handleMouseUp = () => {
+            image2Ref.current.style.clipPath = `polygon(${position * 100}% 0, ${position * 100}% 100%, 100% 100%, 100% 0)`;
+            sliderRef.current.style.left = `${position * 100}%`;
+        },
+    [isMouseDown]
+    );
+
+  const handleUp = () => {
     setIsMouseDown(false);
   };
 
+  useEffect(() => {
+    if (isMouseDown) {
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('touchmove', handleMove);
+        window.addEventListener('mouseup', handleUp);
+        window.addEventListener('touchend', handleUp);
+    } else {
+        window.removeEventListener('mousemove', handleMove);
+        window.removeEventListener('touchmove', handleMove);
+        window.removeEventListener('mouseup', handleUp);
+        window.removeEventListener('touchend', handleUp);
+    }
+    return () => {
+        window.removeEventListener('mousemove', handleMove);
+        window.removeEventListener('touchmove', handleMove);
+        window.removeEventListener('mouseup', handleUp);
+        window.removeEventListener('touchend', handleUp);
+    };
+  }, [isMouseDown, handleMove]);
+
   return (
-    <div className="image-container" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp}>
-      <img src={img1} alt="town" className="image image1" />
-      <img src={img2} alt="mountain" className="image image2" ref={image2Ref} />
-      <div className="slider" ref={sliderRef} onMouseDown={handleMouseDown}></div>
+    <div className="image-container">
+        <img src={img1} alt="town" className="image image1" />
+        <img src={img2} alt="mountain" className="image image2" ref={image2Ref} />
+        <div className="slider" ref={sliderRef} onMouseDown={handleDown} onTouchStart={handleDown}></div>
     </div>
   );
 };
