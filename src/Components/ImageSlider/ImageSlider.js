@@ -11,11 +11,12 @@ const ImageSlider = () => {
     const handleDown = (e) => {
         e.preventDefault();
         setIsMouseDown(true);
+        handleMove(e); // Ajout de cette ligne
     };
 
     const handleMove = useCallback(
         (e) => {
-            if (!isMouseDown) return;
+            if (!isMouseDown && e.type !== 'mousedown' && e.type !== 'touchstart') return;
 
             e.preventDefault();
 
@@ -38,37 +39,37 @@ const ImageSlider = () => {
     [isMouseDown]
     );
 
-  const handleUp = () => {
-    setIsMouseDown(false);
-  };
-
-  useEffect(() => {
-    if (isMouseDown) {
-        window.addEventListener('mousemove', handleMove);
-        window.addEventListener('touchmove', handleMove);
-        window.addEventListener('mouseup', handleUp);
-        window.addEventListener('touchend', handleUp);
-    } else {
-        window.removeEventListener('mousemove', handleMove);
-        window.removeEventListener('touchmove', handleMove);
-        window.removeEventListener('mouseup', handleUp);
-        window.removeEventListener('touchend', handleUp);
-    }
-    return () => {
-        window.removeEventListener('mousemove', handleMove);
-        window.removeEventListener('touchmove', handleMove);
-        window.removeEventListener('mouseup', handleUp);
-        window.removeEventListener('touchend', handleUp);
+    const handleUp = () => {
+        setIsMouseDown(false);
     };
-  }, [isMouseDown, handleMove]);
 
-  return (
-    <div className="image-container">
-        <img src={img1} alt="town" className="image image1" />
-        <img src={img2} alt="mountain" className="image image2" ref={image2Ref} />
-        <div className="slider" ref={sliderRef} onMouseDown={handleDown} onTouchStart={handleDown}></div>
-    </div>
-  );
+    useEffect(() => {
+        if (isMouseDown) {
+            window.addEventListener('mousemove', handleMove);
+            window.addEventListener('touchmove', handleMove);
+            window.addEventListener('mouseup', handleUp);
+            window.addEventListener('touchend', handleUp);
+        } else {
+            window.removeEventListener('mousemove', handleMove);
+            window.removeEventListener('touchmove', handleMove);
+            window.removeEventListener('mouseup', handleUp);
+            window.removeEventListener('touchend', handleUp);
+        }
+        return () => {
+            window.removeEventListener('mousemove', handleMove);
+            window.removeEventListener('touchmove', handleMove);
+            window.removeEventListener('mouseup', handleUp);
+            window.removeEventListener('touchend', handleUp);
+        };
+    }, [isMouseDown, handleMove]);
+
+    return (
+        <div className="image-container" onMouseDown={handleDown} onTouchStart={handleDown}>
+            <img src={img1} alt="town" className="image image1" />
+            <img src={img2} alt="mountain" className="image image2" ref={image2Ref} />
+            <div className="slider" ref={sliderRef}></div>
+        </div>
+    );
 };
 
 export default ImageSlider;
