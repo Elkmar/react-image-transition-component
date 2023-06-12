@@ -1,17 +1,17 @@
 {
   "files": {
-    "main.css": "/react-image-transition-component/static/css/main.ac57f622.css",
+    "main.css": "/react-image-transition-component/static/css/main.7bfd5edb.css",
     "main.js": "/react-image-transition-component/static/js/main.f5b3df05.js",
     "static/js/787.699e48d2.chunk.js": "/react-image-transition-component/static/js/787.699e48d2.chunk.js",
     "static/media/img2.png": "/react-image-transition-component/static/media/img2.092388de92b0bce500c4.png",
     "static/media/img1.png": "/react-image-transition-component/static/media/img1.eb0af96f073050f8dd54.png",
     "index.html": "/react-image-transition-component/index.html",
-    "main.ac57f622.css.map": "/react-image-transition-component/static/css/main.ac57f622.css.map",
+    "main.7bfd5edb.css.map": "/react-image-transition-component/static/css/main.7bfd5edb.css.map",
     "main.f5b3df05.js.map": "/react-image-transition-component/static/js/main.f5b3df05.js.map",
     "787.699e48d2.chunk.js.map": "/react-image-transition-component/static/js/787.699e48d2.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.ac57f622.css",
+    "static/css/main.7bfd5edb.css",
     "static/js/main.f5b3df05.js"
   ]
 }
