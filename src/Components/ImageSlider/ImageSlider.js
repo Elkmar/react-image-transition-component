@@ -1,73 +1,86 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import './ImageSlider.css';
-import img1 from '../../imgs/img1.png';
-import img2 from '../../imgs/img2.png';
 
-const ImageSlider = () => {
-    const sliderRef = useRef(null);
+const ImageSlider = ({ beforeImage, afterImage }) => {
     const [isMouseDown, setIsMouseDown] = useState(false);
-
-    const handleDown = (e) => {
-        e.preventDefault();
-        setIsMouseDown(true);
-        handleMove(e); 
-    };
+    const [position, setPosition] = useState(50);
+    const imageContainerRef = useRef(null);
+    const sliderRef = useRef(null);
 
     const handleMove = useCallback(
-        (e) => {
-            if (!isMouseDown && e.type !== 'mousedown' && e.type !== 'touchstart') return;
-
-            e.preventDefault();
-
-            const imageContainer = sliderRef.current.parentElement;
-            const containerRect = imageContainer.getBoundingClientRect();
-            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-            let position = (clientX - containerRect.left) / containerRect.width;
-
-            if (position < 0) {
-                position = 0;
-            } else if (position > 1) {
-                position = 1;
+        (clientX) => {
+            if (imageContainerRef.current) {
+                const { left, width } = imageContainerRef.current.getBoundingClientRect();
+                let newPosition = ((clientX - left) / width) * 100;
+                newPosition = Math.max(0, Math.min(100, newPosition));
+                setPosition(newPosition);
             }
-
-            sliderRef.current.style.left = `${position * 100}%`;
-            document.documentElement.style.setProperty('--slider-position', `${position * 100}%`);
         },
-        [isMouseDown]
+        []
     );
 
-    const handleUp = useCallback(() => {
-        setIsMouseDown(false);
-    }, []);
+    const onMouseDown = () => setIsMouseDown(true);
+    const onMouseUp = () => setIsMouseDown(false);
 
-    useEffect(() => {
-        window.addEventListener('mouseup', handleUp);
-        window.addEventListener('touchend', handleUp);
-        return () => {
-            window.removeEventListener('mouseup', handleUp);
-            window.removeEventListener('touchend', handleUp);
-        };
-    }, [handleUp]);
+    const onMouseMove = useCallback(
+        (e) => {
+            if (isMouseDown) {
+                handleMove(e.clientX);
+            }
+        },
+        [isMouseDown, handleMove]
+    );
 
-    useEffect(() => {
-        if (isMouseDown) {
-            window.addEventListener('mousemove', handleMove);
-            window.addEventListener('touchmove', handleMove);
-        } else {
-            window.removeEventListener('mousemove', handleMove);
-            window.removeEventListener('touchmove', handleMove);
+    const onTouchStart = () => setIsMouseDown(true);
+    const onTouchEnd = () => setIsMouseDown(false);
+    
+    const onTouchMove = useCallback(
+        (e) => {
+            if (isMouseDown) {
+                handleMove(e.touches[0].clientX);
+            }
+        },
+        [isMouseDown, handleMove]
+    );
+
+    const onKeyDown = (e) => {
+        if (e.key === 'ArrowLeft') {
+            setPosition((prev) => Math.max(0, prev - 5));
+        } else if (e.key === 'ArrowRight') {
+            setPosition((prev) => Math.min(100, prev + 5));
         }
+    };
+
+    useEffect(() => {
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+        document.addEventListener('touchmove', onTouchMove);
+        document.addEventListener('touchend', onTouchEnd);
+
         return () => {
-            window.removeEventListener('mousemove', handleMove);
-            window.removeEventListener('touchmove', handleMove);
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+            document.removeEventListener('touchmove', onTouchMove);
+            document.removeEventListener('touchend', onTouchEnd);
         };
-    }, [isMouseDown, handleMove]);
+    }, [onMouseMove, onTouchMove]);
 
     return (
-        <div className="image-container" onMouseDown={handleDown} onTouchStart={handleDown}>
-            <img src={img1} alt="image1" className="image image1" />
-            <img src={img2} alt="image2" className="image image2" />
-            <div className="slider" ref={sliderRef}></div>
+        <div
+            className="image-container"
+            ref={imageContainerRef}
+            style={{ '--slider-position': `${position}%` }}
+            role="slider"
+            aria-valuenow={position}
+            aria-valuemin="0"
+            aria-valuemax="100"
+            tabIndex="0"
+            onKeyDown={onKeyDown}
+            aria-label="Image Comparison Slider"
+        >
+            <img src={beforeImage} alt="Before" className="image image-before" />
+            <img src={afterImage} alt="After" className="image image-after" />
+            <div className="slider" ref={sliderRef} onMouseDown={onMouseDown} onTouchStart={onTouchStart}></div>
         </div>
     );
 };
